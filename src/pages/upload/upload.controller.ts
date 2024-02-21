@@ -80,13 +80,29 @@ export class UploadController {
       fileFilter: imageFileFilter,
     }),
   )
+  // async uploadMultipleImages(
+  //   @UploadedFiles() files: any[],
+  //   @Req() req,
+  // ): Promise<ImageUploadResponse[]> {
+  //   const isProduction = this.configService.get<boolean>('productionBuild');
+  //   const baseurl =
+  //     req.protocol + `${isProduction ? 's' : ''}://` + req.get('host') + '/api';
+  //   const response: ImageUploadResponse[] = [];
+  //   files.forEach((file) => {
+  //     const fileResponse = {
+  //       size: this.uploadService.bytesToKb(file.size),
+  //       name: file.filename.split('.')[0],
+  //       url: `${baseurl}/${file.path}`,
+  //     } as ImageUploadResponse;
+  //     response.push(fileResponse);
+  //   });
+  //   return response;
+  // }
   async uploadMultipleImages(
     @UploadedFiles() files: any[],
     @Req() req,
   ): Promise<ImageUploadResponse[]> {
-    const isProduction = this.configService.get<boolean>('productionBuild');
-    const baseurl =
-      req.protocol + `${isProduction ? 's' : ''}://` + req.get('host') + '/api';
+    const baseurl = 'http://' + req.get('host') + '/api'; // Use 'http://' instead of 'req.protocol'
     const response: ImageUploadResponse[] = [];
     files.forEach((file) => {
       const fileResponse = {

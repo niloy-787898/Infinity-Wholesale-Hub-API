@@ -7,15 +7,15 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule, { cors: true });
   // Allow Cors
-  // app.enableCors({
-  //   // origin: '*',
-  //   origin: ['http://localhost:4201'],
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   allowedHeaders: [
-  //     'Content-Type,Authorization',
-  //     'Content-Type,administrator',
-  //   ],
-  // });
+  app.enableCors({
+    origin: '*',
+    // origin: ['http://localhost:4201'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: [
+      'Content-Type,Authorization',
+      'Content-Type,administrator',
+    ],
+  });
   // Version Control
   app.enableVersioning({
     type: VersioningType.URI,
