@@ -20,7 +20,7 @@ import { Product } from 'src/interfaces/common/product.interface';
 export class AddSalesDto {
   @IsNotEmpty()
   customer: any;
-  
+
   @IsOptional()
   @IsArray()
   products: Product[];
@@ -32,6 +32,14 @@ export class AddSalesDto {
   @IsNotEmpty()
   @IsNumber()
   discountAmount: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  discountPercent: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  shippingCharge: number;
 
   @IsNotEmpty()
   @IsNumber()

@@ -9,6 +9,8 @@ export interface Sales {
   year: number;
   referenceNo?: string;
   discount?: number;
+  discountPercent?: number;
+  shippingCharge?: number;
   status?: string;
   totalPurchasePrice: number;
   createdAt?: Date;

@@ -98,6 +98,16 @@ export const SalesSchema = new mongoose.Schema(
       default: 0,
       required: false,
     },
+    discountPercent: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
+    shippingCharge: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
     status: {
       type: String,
       required: false,

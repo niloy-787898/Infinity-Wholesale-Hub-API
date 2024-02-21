@@ -45,7 +45,7 @@ export class SalesService {
     private readonly productModel: Model<Product>,
     private configService: ConfigService,
     private utilsService: UtilsService,
-  ) { }
+  ) {}
 
   /**
    * ADD DATA
@@ -64,6 +64,8 @@ export class SalesService {
       const { customer } = addSalesDto;
       const { products } = addSalesDto;
       const { discountAmount } = addSalesDto;
+      const { discountPercent } = addSalesDto;
+      const { shippingCharge } = addSalesDto;
       const { total } = addSalesDto;
       const { subTotal } = addSalesDto;
 
@@ -116,6 +118,8 @@ export class SalesService {
             total,
             subTotal,
             discountAmount,
+            discountPercent,
+            shippingCharge,
             invoiceNo,
           };
 
@@ -152,6 +156,8 @@ export class SalesService {
               total,
               subTotal,
               discountAmount,
+              discountPercent,
+              shippingCharge,
               invoiceNo,
             };
 
@@ -188,6 +194,8 @@ export class SalesService {
           total,
           subTotal,
           discountAmount,
+          discountPercent,
+          shippingCharge,
           invoiceNo,
         };
 
