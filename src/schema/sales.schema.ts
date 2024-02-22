@@ -110,8 +110,8 @@ export const SalesSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      required: false,
-      default: 'Sales',
+      enum: ['Pending', 'Hold', 'Ready for Shipping', 'Completed', 'Canceled'],
+      default: 'Pending',
     },
     totalPurchasePrice: {
       type: Number,

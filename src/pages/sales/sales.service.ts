@@ -628,15 +628,111 @@ export class SalesService {
    * updateSalesById()
    * updateMultipleSalesById()
    */
+  // async updateSalesById(
+  //   id: string,
+  //   updateSalesDto: UpdateSalesDto,
+  // ): Promise<ResponsePayload> {
+  //   try {
+  //     const { customer } = updateSalesDto;
+  //     let customerData: Customer;
+  //     let data;
+  //     const { soldDate } = updateSalesDto;
+
+  //     if (customer && customer?._id) {
+  //       customerData = await this.customerModel.findById(customer?._id);
+  //     }
+
+  //     if (customerData?._id) {
+  //       const mData = {
+  //         ...updateSalesDto,
+  //         ...{
+  //           soldDateString: this.utilsService.getDateString(soldDate),
+  //           customer: customerData,
+  //         },
+  //       };
+  //       data = await new this.returnSalesModel(mData).save();
+  //       await this.salesModel.findByIdAndUpdate(id, {
+  //         status: 'Returned',
+  //       });
+
+  //       const previousSalesData: Sales = await this.salesModel.findOne({
+  //         invoiceNo: updateSalesDto.invoiceNo,
+  //       });
+
+  //       previousSalesData.products.map((m) => {
+  //         updateSalesDto.products.map(async (m2) => {
+  //           console.log('m2._id,m._id', m2._id, m._id);
+  //           if (m._id.toString() === m2._id) {
+  //             await this.productModel.findByIdAndUpdate(m._id, {
+  //               $inc: { quantity: m.soldQuantity - m2.soldQuantity },
+  //             });
+  //           }
+  //         });
+  //       });
+  //     } else {
+  //       const mData = {
+  //         ...updateSalesDto,
+  //         ...{
+  //           returnDate: new Date(),
+  //           returnDateString: this.utilsService.getDateString(new Date()),
+  //         },
+  //       };
+  //       data = await new this.returnSalesModel(mData).save();
+  //       await this.salesModel.findByIdAndUpdate(id, {
+  //         status: 'Returned',
+  //       });
+
+  //       const previousSalesData: Sales = await this.salesModel.findOne({
+  //         invoiceNo: updateSalesDto.invoiceNo,
+  //       });
+
+  //       previousSalesData.products.map((m) => {
+  //         updateSalesDto.products.map(async (m2) => {
+  //           console.log('m2._id,m._id', m2._id, m._id);
+  //           if (m._id.toString() === m2._id) {
+  //             await this.productModel.findByIdAndUpdate(m._id, {
+  //               $inc: { quantity: m.soldQuantity - m2.soldQuantity },
+  //             });
+  //           }
+  //         });
+  //       });
+  //     }
+
+  //     return {
+  //       success: true,
+  //       message: 'Success',
+  //       data: {
+  //         data,
+  //       },
+  //     } as ResponsePayload;
+  //   } catch (err) {
+  //     console.log(err);
+  //     throw new InternalServerErrorException();
+  //   }
+  // }
+
   async updateSalesById(
     id: string,
     updateSalesDto: UpdateSalesDto,
   ): Promise<ResponsePayload> {
     try {
+      const { status, products } = updateSalesDto;
       const { customer } = updateSalesDto;
       let customerData: Customer;
       let data;
-      const { soldDate } = updateSalesDto;
+
+      // Handle logic based on the status
+      if (status === 'Canceled') {
+        // Loop through products and update quantities
+        for (const product of products) {
+          const { _id, soldQuantity } = product;
+
+          // Find the product by ID and update the quantity
+          await this.productModel.findByIdAndUpdate(_id, {
+            $inc: { quantity: soldQuantity }, // Increment the quantity by the sold quantity
+          });
+        }
+      }
 
       if (customer && customer?._id) {
         customerData = await this.customerModel.findById(customer?._id);
@@ -646,30 +742,14 @@ export class SalesService {
         const mData = {
           ...updateSalesDto,
           ...{
-            soldDateString: this.utilsService.getDateString(soldDate),
             customer: customerData,
           },
         };
-        data = await new this.returnSalesModel(mData).save();
-        await this.salesModel.findByIdAndUpdate(id, {
-          status: 'Returned',
-        });
-
-        const previousSalesData: Sales = await this.salesModel.findOne({
-          invoiceNo: updateSalesDto.invoiceNo,
-        });
-
-        previousSalesData.products.map((m) => {
-          updateSalesDto.products.map(async (m2) => {
-            console.log('m2._id,m._id', m2._id, m._id);
-            if (m._id.toString() === m2._id) {
-              await this.productModel.findByIdAndUpdate(m._id, {
-                $inc: { quantity: m.soldQuantity - m2.soldQuantity },
-              });
-            }
-          });
-        });
+        data = await this.salesModel.findByIdAndUpdate(id, mData, {
+          new: true,
+        }); // Update existing sales record
       } else {
+        // You can handle it based on your application's requirements, here's an example:
         const mData = {
           ...updateSalesDto,
           ...{
@@ -677,26 +757,27 @@ export class SalesService {
             returnDateString: this.utilsService.getDateString(new Date()),
           },
         };
-        data = await new this.returnSalesModel(mData).save();
-        await this.salesModel.findByIdAndUpdate(id, {
-          status: 'Returned',
+
+        // Update existing sales record with the new data
+        data = await this.salesModel.findByIdAndUpdate(id, mData, {
+          new: true,
         });
 
-        const previousSalesData: Sales = await this.salesModel.findOne({
-          invoiceNo: updateSalesDto.invoiceNo,
-        });
-
-        previousSalesData.products.map((m) => {
-          updateSalesDto.products.map(async (m2) => {
-            console.log('m2._id,m._id', m2._id, m._id);
-            if (m._id.toString() === m2._id) {
-              await this.productModel.findByIdAndUpdate(m._id, {
-                $inc: { quantity: m.soldQuantity - m2.soldQuantity },
-              });
-            }
-          });
-        });
+        // Update status if provided
+        if (status) {
+          await this.salesModel.findByIdAndUpdate(id, { status });
+        }
       }
+
+      // Update status if provided
+      if (status) {
+        await this.salesModel.findByIdAndUpdate(id, { status });
+      }
+
+      // Update the sales record with the new data
+      data = await this.salesModel.findByIdAndUpdate(id, updateSalesDto, {
+        new: true,
+      });
 
       return {
         success: true,
@@ -704,7 +785,7 @@ export class SalesService {
         data: {
           data,
         },
-      } as ResponsePayload;
+      };
     } catch (err) {
       console.log(err);
       throw new InternalServerErrorException();

@@ -48,6 +48,10 @@ export class AddSalesDto {
   @IsNotEmpty()
   @IsNumber()
   total: number;
+
+  @IsNotEmpty()
+  @IsString()
+  status: number;
 }
 
 export class FilterSalesDto {
@@ -71,6 +75,9 @@ export class UpdateSalesDto {
 
   @IsString()
   invoiceNo: string;
+
+  @IsString()
+  status: string;
 
   @IsOptional()
   @IsArray()

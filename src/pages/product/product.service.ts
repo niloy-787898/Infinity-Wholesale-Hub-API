@@ -58,6 +58,13 @@ export class ProductService {
    */
   async addProduct(addProductDto: AddProductDto): Promise<ResponsePayload> {
     try {
+      const { quantity } = addProductDto;
+
+      // Validate that the quantity is at least 1
+      if (quantity < 1) {
+        throw new BadRequestException('Product quantity must be at least 1');
+      }
+
       const createdAtString = this.utilsService.getDateString(new Date());
 
       const incOrder = await this.uniqueIdModel.findOneAndUpdate(
@@ -95,14 +102,18 @@ export class ProductService {
           model: addProductDto.model || null,
           salePrice: addProductDto.salePrice || null,
           purchasePrice: addProductDto.purchasePrice || null,
+          purchaseQuantity: addProductDto.quantity || null,
+          soldQuantity: addProductDto.soldQuantity || null,
         },
         month: new Date().getMonth(),
         year: new Date().getFullYear(),
         previousQuantity: 0,
-        updatedQuantity: addProductDto.quantity,
+        updatedQuantity: addProductDto.quantity || 1,
         createdAtString: this.utilsService.getDateString(new Date()),
       };
       await new this.productPurchaseModel(purchaseData).save();
+
+      console.log('Purchase data:', purchaseData);
 
       return {
         success: true,
@@ -475,6 +486,8 @@ export class ProductService {
           model: updateProductDto.model || null,
           salePrice: updateProductDto.salePrice || null,
           purchasePrice: updateProductDto.purchasePrice || null,
+          purchaseQuantity: updateProductDto.quantity || null,
+          soldQuantity: updateProductDto.soldQuantity || null,
         },
 
         month: new Date().getMonth(),

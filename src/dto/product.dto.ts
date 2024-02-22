@@ -87,6 +87,10 @@ export class UpdateProductDto {
   @IsNumber()
   quantity: number;
 
+  @IsNotEmpty()
+  @IsNumber()
+  soldQuantity: number;
+
   @IsOptional()
   @IsString()
   model: string;
