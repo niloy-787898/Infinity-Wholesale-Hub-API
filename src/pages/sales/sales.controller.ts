@@ -21,7 +21,6 @@ import { AdminJwtAuthGuard } from '../../guards/admin-jwt-auth.guard';
 import {
   AddSalesDto,
   FilterAndPaginationSalesDto,
-  OptionSalesDto,
   UpdateSalesDto,
 } from '../../dto/sales.dto';
 import { ResponsePayload } from '../../interfaces/core/response-payload.interface';
@@ -69,7 +68,6 @@ export class SalesController {
   async getAllSales(
     @Body() filterSalesDto: FilterAndPaginationSalesDto,
     @Query('q') searchString: string,
-    @GetAdmin() salesman: Admin,
   ): Promise<ResponsePayload> {
     return this.salesService.getAllSales(filterSalesDto, searchString);
   }
@@ -83,7 +81,6 @@ export class SalesController {
   async getAllSalesByMonth(
     @Body() filterSalesDto: FilterAndPaginationSalesDto,
     @Query('q') searchString: string,
-    @GetAdmin() salesman: Admin,
   ): Promise<ResponsePayload> {
     return this.salesService.getAllSales(filterSalesDto, searchString);
   }
@@ -93,10 +90,7 @@ export class SalesController {
   @AdminMetaRoles(AdminRoles.SUPER_ADMIN, AdminRoles.SALESMAN)
   @UseGuards(AdminRolesGuard)
   @UseGuards(AuthGuard(PASSPORT_ADMIN_TOKEN_TYPE))
-  async getSalesByDate(
-    @Query('date') date: string,
-    @GetAdmin() salesman: Admin,
-  ): Promise<ResponsePayload> {
+  async getSalesByDate(@Query('date') date: string): Promise<ResponsePayload> {
     return this.salesService.getSalesByDate(date);
   }
 
@@ -108,7 +102,6 @@ export class SalesController {
   async getSalesById(
     @Param('id', MongoIdValidationPipe) id: string,
     @Query() select: string,
-    @GetAdmin() salesman: Admin,
   ): Promise<ResponsePayload> {
     return await this.salesService.getSalesById(id, select);
   }
@@ -121,7 +114,6 @@ export class SalesController {
   async getCustomerSalesById(
     @Param('id', MongoIdValidationPipe) id: string,
     @Query() select: string,
-    @GetAdmin() salesman: Admin,
   ): Promise<ResponsePayload> {
     return await this.salesService.getCustomerSalesById(id, select);
   }
@@ -135,7 +127,6 @@ export class SalesController {
   async getSalesmanSalesById(
     @Param('id', MongoIdValidationPipe) id: string,
     @Query() select: string,
-    @GetAdmin() salesman: Admin,
   ): Promise<ResponsePayload> {
     return await this.salesService.getSalesmanSalesById(id, select);
   }
