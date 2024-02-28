@@ -722,6 +722,7 @@ export class SalesService {
       let data;
 
       // Handle logic based on the status
+      // Check if the status is 'Canceled'
       if (status === 'Canceled') {
         // Loop through products and update quantities
         for (const product of products) {
@@ -732,6 +733,26 @@ export class SalesService {
             $inc: { quantity: soldQuantity }, // Increment the quantity by the sold quantity
           });
         }
+
+        // Add return date and return date string
+        const returnDate = new Date();
+        const returnDateString = this.utilsService.getDateString(returnDate);
+
+        // Create a new return model with return date and return date string
+        const returnData = await new this.returnSalesModel({
+          ...updateSalesDto,
+          returnDate,
+          returnDateString,
+        }).save();
+
+        // Remove the canceled sale from the sales model
+        await this.salesModel.findByIdAndDelete(id);
+
+        return {
+          success: true,
+          message: 'Sale canceled and moved to return model',
+          data: { returnData },
+        };
       }
 
       if (customer && customer?._id) {
@@ -749,35 +770,26 @@ export class SalesService {
           new: true,
         }); // Update existing sales record
       } else {
-        // You can handle it based on your application's requirements, here's an example:
-        const mData = {
-          ...updateSalesDto,
-          ...{
-            returnDate: new Date(),
-            returnDateString: this.utilsService.getDateString(new Date()),
+        // Update the sales record with the new data
+        const data = await this.salesModel.findByIdAndUpdate(
+          id,
+          updateSalesDto,
+          {
+            new: true,
           },
-        };
-
-        // Update existing sales record with the new data
-        data = await this.salesModel.findByIdAndUpdate(id, mData, {
-          new: true,
-        });
+        );
 
         // Update status if provided
         if (status) {
           await this.salesModel.findByIdAndUpdate(id, { status });
         }
-      }
 
-      // Update status if provided
-      if (status) {
-        await this.salesModel.findByIdAndUpdate(id, { status });
+        return {
+          success: true,
+          message: 'Success',
+          data: { data },
+        };
       }
-
-      // Update the sales record with the new data
-      data = await this.salesModel.findByIdAndUpdate(id, updateSalesDto, {
-        new: true,
-      });
 
       return {
         success: true,
